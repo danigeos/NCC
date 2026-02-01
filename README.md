@@ -1,0 +1,2 @@
+# NCC
+Normalized Citation Count
