@@ -14,6 +14,8 @@ This system has created problematic incentives:
 
 * **Hyper-authorship:** We now see "mega-papers" with hundreds or even thousands of authors, which distorts traditional metrics of productivity.
 
+![Exponential growth of the number of authors in 3 disciplines](authors_per_paper.png)
+
 ## **The Solution: Normalized Citation Count (NCC)**
 
 The **Normalized Citation Count (NCC)** proposes a "zero-sum" approach to scientific credit. Its core principle is simple: **Every citation to a scientific publication counts as exactly one unit of credit to be split among the co-authors.**
