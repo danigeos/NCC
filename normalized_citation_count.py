@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+### NCC calculator by D. Garcia-Castellanos (CSIC-Geo3BCN), 2025
+
 import warnings
 # --- SILENCE WARNINGS BEFORE OTHER IMPORTS ---
 # This catches the NotOpenSSLWarning from urllib3 v2 on macOS systems with LibreSSL
@@ -154,18 +156,27 @@ def format_authors_for_list(authorships):
 
 def main():
     SYNTAX_EXPLAINER = (
-        "\n*** USAGE SYNTAX ***\n"
-        './normalized_citation_count.py "Author Name" [--weight_ratio <value>] [--save]\n\n'
-        'Example: ./normalized_citation_count.py "G.K. Gilbert" --weight_ratio 0.3 --save'
+        "\n***           Normalized Citation Count          ***"
+        "\n*** NCC calculator (D. Garcia-Castellanos, 2025) ***"
+        "\n***************** USAGE SYNTAX *********************"
+        '\n./normalized_citation_count.py "Author Name" [--weight_ratio <value>] [--save]'
+        '\nExample: ./normalized_citation_count.py "G.K. Gilbert" --weight_ratio 0.3 --save'
         '\nweight_ratio is the relative weight attributed to consecutive authors.'
-        '\nThe total weight given to a citation is 1, distributed among authors.'
-        '\nWith weight_ratio = .5 and N = infinite authors, weights are 0.5, 0.25, ...'
-        '\nWith weight_ratio = .5 and N = 1, weight is 1'
-        '\nWith weight_ratio = .5 and N = 2, weights are 2/3, 1/3'
-        '\nWith weight_ratio = .5 and N = 3, weights are 4/7, 2/7, 1/7 (sum=1)'
-        '\nWith weight_ratio = .33 and N = 3, weights are 9/13, 3/13, 1/13 (sum=1)'
-        '\nIf weight_ratio is 1/3 and there are 4 authors, they contribute in a ratio of 27, 9, 3, 1'
+        '\nThe total weight given to a citation is always 1, decreasing-exponentially distributed among authors.'
+        '\nCount weights for N authors and weight_ratio = .5:'
+        '\n\tN = 1: weight = 1'
+        '\n\tN = 2, weights: 2/3 + 1/3 = 1'
+        '\n\tN = 3, weights: 4/7 + 2/7 + 1/7 = 1'
+        '\n\tN = inf, weights: 1/2 + 1/4 + 1/8 + ... = 1'
+        '\nFor weight_ratio = .333'
+        '\n\tN = 1, weight = 1'
+        '\n\tN = 2, weights = 3/4 + 1/4 = 1'
+        '\n\tN = 3, weights = 9/13 + 3/13 + 1/13 = 1'
+        '\n\tN = 4, weights = 27/40 + 9/40 + 3/40 + 1/40 = 1'
+        '\nMeaning: If weight_ratio is 1/3 and there are 4 authors, they receive credit in a proportion of 27, 9, 3, 1'
         '\n--save: Writes full results to a CSV file (Default: No)'
+        "\n*****************************************************"
+        '\n'
     )
     
     parser = argparse.ArgumentParser(
@@ -180,6 +191,7 @@ def main():
     AUTHOR_WIDTH, TITLE_WIDTH, TOP_N = 30, 20, 30
     R_VALUE = args.weight_ratio
 
+    print(SYNTAX_EXPLAINER)
     try:
         df_raw, author_id, author_name = get_author_data(args.author_name)
         df_result = compute_nnc(df_raw.copy(), author_id, R_VALUE)
@@ -219,21 +231,18 @@ def main():
         h_index_nnc = compute_h_index(df_result["NCC"].tolist())
         
         print("\n" + "="*52)
-        print(f"| {'NCC CALCULATION SUMMARY':^48} |")
+        print(f"| {'NCC SUMMARY':^48} |")
         print("="*52)
         print(f"| Author: {author_name:<40} |")
         print(f"| OpenAlex ID: {author_id:<35} |")
         print(f"| Weight Ratio (r): {R_VALUE:<30} |") 
-        print(f"| Total Citations (NC): {total_nc:<26} |")
-        print(f"| Total NCC: {total_nnc:.1f} <--- Normalized Citation Number|") 
-        print(f"| h-Index (classic NC): {h_index_nc:<26} |")
-        print(f"| h-Index (NCC-based):  {h_index_nnc:<26} |")
+        print(f"|              classic      weighted               |")
+        print(f"| citations:   {total_nc:<12} {total_nnc:.1f} <--- Normalized Citation Count ")
+        print(f"| h-index:     {h_index_nc:<12} {h_index_nnc:<22} |")
         print("="*52 + "\n")
 
     except Exception as e:
         print(f"\n[ERROR] {e}")
-    finally:
-        print(SYNTAX_EXPLAINER)
 
 if __name__ == "__main__":
     main()
